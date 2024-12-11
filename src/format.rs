@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 
 // Partial implementation of Multivariant Playlist format as defined in RFC 8216bis
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum MediaType {
     Audio, Video, Subtitles, ClosedCaptions,
 }
@@ -16,16 +16,16 @@ pub struct Media {
     pub name: String,
     pub default: bool,
     pub autoselect: bool,
-    pub channels: String,
+    pub channels: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Resolution {
     pub w: u64,
     pub h: u64,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum VideoRange {
     SDR, HLG, PQ,
 }
