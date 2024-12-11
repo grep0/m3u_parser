@@ -1,3 +1,4 @@
+use core::fmt;
 use std::collections::HashMap;
 
 use regex_static::once_cell::sync::Lazy;
@@ -124,6 +125,25 @@ fn parse_line<'a>(line: &'a str) -> Option<ParsedLine<'a>> {
 
 use crate::format;
 
+#[derive(Debug)]
+pub struct ParseError {
+    message: &'static str,
+    lineno: usize,
+}
+
+impl ParseError {
+    pub fn new(message: &'static str, lineno: usize) -> Self {
+        ParseError{message, lineno}
+    }
+}
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // lineno+1 as we want base 1 line numbers
+        write!(f, "{} at line {}", self.message, self.lineno+1)
+    }
+}
+
 fn as_media_type(v: &AttributeValue) -> Option<format::MediaType> {
     match *(v.as_enumerated_string().ok()?) {
         "AUDIO" => Some(format::MediaType::Audio),
@@ -200,7 +220,7 @@ fn interpret_ext_x_i_frame_stream_inf(attr: &AttributeMap) -> Option<format::IFr
     })
 }
 
-pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, String> {
+pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, ParseError> {
     let mut playlist = format::MultivariantPlaylist{
         independent_segments: false,
         media: vec![],
@@ -210,12 +230,12 @@ pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, String
     let mut expect_uri = false;
     for (lineno, line) in data.split('\n').enumerate() {
         let Some(parsed) = parse_line(line) else {
-            return Err(format!("Parse error at line {}", lineno).to_string())
+            return Err(ParseError::new("Failed to parse line", lineno))
         };
         if lineno == 0 {
             match parsed {
                 ParsedLine::ExtM3U => (),
-                _ => return Err("No #EXTM3U at first line".to_string())
+                _ => return Err(ParseError::new("No #EXTM3U", 0))
             }
         } else if expect_uri {
             match parsed {
@@ -223,7 +243,7 @@ pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, String
                     playlist.stream_inf.last_mut().unwrap().uri = uri.to_string();
                     expect_uri = false;
                 },
-                _ => return Err(format!("Expected URI line not found at line {}", lineno).to_string())
+                _ => return Err(ParseError::new("Expected URI line not found", lineno))
             }
         } else {
             match parsed {
@@ -235,7 +255,7 @@ pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, String
                     if let Some(m) = intepret_ext_x_media(&attr) {
                         playlist.media.push(m)
                     } else {
-                        return Err(format!("Failed to interpret EXT-X-MEDIA at line {}", lineno).to_string())
+                        return Err(ParseError::new("Failed to interpret EXT-X-MEDIA", lineno))
                     }
                 },
                 ParsedLine::TagWithAttributes("EXT-X-STREAM-INF", attr) => {
@@ -243,27 +263,27 @@ pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, String
                         playlist.stream_inf.push(m);
                         expect_uri = true;
                     } else {
-                        return Err(format!("Failed to interpret EXT-X-STREAM-INF at line {}", lineno).to_string())
+                        return Err(ParseError::new("Failed to interpret EXT-X-STREAM-INF", lineno))
                     }
                 },
                 ParsedLine::TagWithAttributes("EXT-X-I-FRAME-STREAM-INF", attr) => {
                     if let Some(m) = interpret_ext_x_i_frame_stream_inf(&attr) {
                         playlist.i_frame_stream_inf.push(m)
                     } else {
-                        return Err(format!("Failed to interpret EXT-X-I-FRAME-STREAM-INF at line {}", lineno).to_string())
+                        return Err(ParseError::new("Failed to interpret EXT-X-I-FRAME-STREAM-INF", lineno))
                     }
                 },
                 _ => {
-                    return Err(format!("Unexpected line {}", lineno).to_string())
+                    return Err(ParseError::new("Unexpected line", lineno))
                 }
             }
         }
     }
     if expect_uri {
-        return Err("Expected URI at last line not found".to_string());
+        return Err(ParseError::new("File truncated without an expected URI line after EXT-X-STREAM-INF", 0));
     }
     if playlist.media.is_empty() && playlist.stream_inf.is_empty() && playlist.i_frame_stream_inf.is_empty() {
-        return Err("Empty playlist".to_string());
+        return Err(ParseError::new("Empty playlist", 0));
     }
 
     Ok(playlist)
@@ -475,6 +495,13 @@ hdr10/unenc/10000k/vod.m3u8
     #[test]
     fn test_missing_stream_inf_uri() {
         let data = include_str!("../data/missing_stream_inf_uri.m3u8");
+        let parsed = parse_playlist(&data);
+        assert!(parsed.is_err());
+    }
+    
+    #[test]
+    fn test_truncated() {
+        let data = include_str!("../data/truncated.m3u8");
         let parsed = parse_playlist(&data);
         assert!(parsed.is_err());
     }
