@@ -464,4 +464,30 @@ hdr10/unenc/10000k/vod.m3u8
         assert_eq!(m3u.i_frame_stream_inf.len(), 1);
         assert_eq!(m3u.i_frame_stream_inf[0].uri, "hdr10/unenc/3300k/vod-iframe.m3u8");
     }
+
+    #[test]
+    fn test_missing_extm3u() {
+        let data = include_str!("../data/missing_extm3u.m3u8");
+        let parsed = parse_playlist(&data);
+        assert!(parsed.is_err());
+    }
+
+    #[test]
+    fn test_missing_stream_inf_uri() {
+        let data = include_str!("../data/missing_stream_inf_uri.m3u8");
+        let parsed = parse_playlist(&data);
+        assert!(parsed.is_err());
+    }
+
+    #[test]
+    fn test_validation_error() {
+        let data = include_str!("../data/validation_error.m3u8");
+        let Ok(m3u) = parse_playlist(&data) else {
+            assert!(false);
+            return
+        };
+        let validate = format::validate(&m3u);
+        assert!(validate.is_err());
+    }
+
 }

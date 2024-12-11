@@ -29,5 +29,10 @@ fn main() {
             return;
         }
     };
+    if let Err(verr) = format::validate(&m3u) {
+        println!("Format validation error: {}", verr);
+        return;
+    }
+
     print!("{}", serde_json::to_string_pretty(&m3u).unwrap());
 }
