@@ -20,19 +20,8 @@ fn main() {
         } else {
             fs::read_to_string(uri).expect("Failed to read file")
         };
-    let m3u = match parser::parse_playlist(&contents) {
-        Ok(m3u) => {
-            m3u
-        },
-        Err(parse_error) => {
-            println!("Failed to parse file: {}", parse_error);
-            return;
-        }
-    };
-    if let Err(verr) = format::validate(&m3u) {
-        println!("Format validation error: {}", verr);
-        return;
-    }
+    let m3u = parser::parse_playlist(&contents).expect("Failed to parse file");
+    format::validate(&m3u).expect("Format validation error");
 
     print!("{}", serde_json::to_string_pretty(&m3u).unwrap());
 }
