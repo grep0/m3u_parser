@@ -1,0 +1,573 @@
+{
+  "independent_segments": true,
+  "media": [
+    {
+      "type_": "Audio",
+      "uri": "audio/unenc/aac_128k/vod.m3u8",
+      "group_id": "aac-128k",
+      "language": "en",
+      "name": "English",
+      "default": true,
+      "autoselect": true,
+      "channels": "2"
+    },
+    {
+      "type_": "Audio",
+      "uri": "audio/unenc/aac_64k/vod.m3u8",
+      "group_id": "aac-64k",
+      "language": "en",
+      "name": "English",
+      "default": true,
+      "autoselect": true,
+      "channels": "2"
+    },
+    {
+      "type_": "Audio",
+      "uri": "audio/unenc/ec3_256k/vod.m3u8",
+      "group_id": "eac3",
+      "language": "en",
+      "name": "English",
+      "default": true,
+      "autoselect": true,
+      "channels": "6"
+    },
+    {
+      "type_": "Audio",
+      "uri": "audio/unenc/atmos_1024k/vod.m3u8",
+      "group_id": "atmos",
+      "language": "en",
+      "name": "English",
+      "default": true,
+      "autoselect": true,
+      "channels": "16/JOC"
+    }
+  ],
+  "stream_inf": [
+    {
+      "uri": "hdr10/unenc/1650k/vod.m3u8",
+      "bandwidth": 2483789,
+      "average_bandwidth": 1762745,
+      "codecs": "mp4a.40.2,hvc1.2.4.L90.90",
+      "resolution": {
+        "w": 960,
+        "h": 540
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/10000k/vod.m3u8",
+      "bandwidth": 15811232,
+      "average_bandwidth": 10058085,
+      "codecs": "mp4a.40.2,hvc1.2.4.L150.90",
+      "resolution": {
+        "w": 2560,
+        "h": 1440
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/13000k/vod.m3u8",
+      "bandwidth": 20655057,
+      "average_bandwidth": 13066616,
+      "codecs": "mp4a.40.2,hvc1.2.4.H150.90",
+      "resolution": {
+        "w": 3840,
+        "h": 2160
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/16500k/vod.m3u8",
+      "bandwidth": 25702333,
+      "average_bandwidth": 16502314,
+      "codecs": "mp4a.40.2,hvc1.2.4.H150.90",
+      "resolution": {
+        "w": 3840,
+        "h": 2160
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/2500k/vod.m3u8",
+      "bandwidth": 3790212,
+      "average_bandwidth": 2621435,
+      "codecs": "mp4a.40.2,hvc1.2.4.L93.90",
+      "resolution": {
+        "w": 1280,
+        "h": 720
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/3300k/vod.m3u8",
+      "bandwidth": 5044473,
+      "average_bandwidth": 3403100,
+      "codecs": "mp4a.40.2,hvc1.2.4.L93.90",
+      "resolution": {
+        "w": 1280,
+        "h": 720
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/4600k/vod.m3u8",
+      "bandwidth": 6986073,
+      "average_bandwidth": 4717677,
+      "codecs": "mp4a.40.2,hvc1.2.4.L120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/6000k/vod.m3u8",
+      "bandwidth": 9533270,
+      "average_bandwidth": 6100009,
+      "codecs": "mp4a.40.2,hvc1.2.4.L120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/7700k/vod.m3u8",
+      "bandwidth": 12156778,
+      "average_bandwidth": 7766087,
+      "codecs": "mp4a.40.2,hvc1.2.4.H120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/8800k/vod.m3u8",
+      "bandwidth": 13911387,
+      "average_bandwidth": 8880895,
+      "codecs": "mp4a.40.2,hvc1.2.4.L150.90",
+      "resolution": {
+        "w": 2560,
+        "h": 1440
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-128k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/450k/vod.m3u8",
+      "bandwidth": 705826,
+      "average_bandwidth": 514769,
+      "codecs": "mp4a.40.2,hvc1.2.4.L63.90",
+      "resolution": {
+        "w": 640,
+        "h": 360
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-64k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/900k/vod.m3u8",
+      "bandwidth": 1352519,
+      "average_bandwidth": 959558,
+      "codecs": "mp4a.40.2,hvc1.2.4.L63.90",
+      "resolution": {
+        "w": 640,
+        "h": 360
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "aac-64k",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/1650k/vod.m3u8",
+      "bandwidth": 2612376,
+      "average_bandwidth": 1891332,
+      "codecs": "ec-3,hvc1.2.4.L90.90",
+      "resolution": {
+        "w": 960,
+        "h": 540
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/10000k/vod.m3u8",
+      "bandwidth": 15939819,
+      "average_bandwidth": 10186672,
+      "codecs": "ec-3,hvc1.2.4.L150.90",
+      "resolution": {
+        "w": 2560,
+        "h": 1440
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/13000k/vod.m3u8",
+      "bandwidth": 20783644,
+      "average_bandwidth": 13195203,
+      "codecs": "ec-3,hvc1.2.4.H150.90",
+      "resolution": {
+        "w": 3840,
+        "h": 2160
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/16500k/vod.m3u8",
+      "bandwidth": 25830920,
+      "average_bandwidth": 16630901,
+      "codecs": "ec-3,hvc1.2.4.H150.90",
+      "resolution": {
+        "w": 3840,
+        "h": 2160
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/2500k/vod.m3u8",
+      "bandwidth": 3918799,
+      "average_bandwidth": 2750022,
+      "codecs": "ec-3,hvc1.2.4.L93.90",
+      "resolution": {
+        "w": 1280,
+        "h": 720
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/3300k/vod.m3u8",
+      "bandwidth": 5173060,
+      "average_bandwidth": 3531687,
+      "codecs": "ec-3,hvc1.2.4.L93.90",
+      "resolution": {
+        "w": 1280,
+        "h": 720
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/4600k/vod.m3u8",
+      "bandwidth": 7114660,
+      "average_bandwidth": 4846264,
+      "codecs": "ec-3,hvc1.2.4.L120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/6000k/vod.m3u8",
+      "bandwidth": 9661857,
+      "average_bandwidth": 6228596,
+      "codecs": "ec-3,hvc1.2.4.L120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/7700k/vod.m3u8",
+      "bandwidth": 12285365,
+      "average_bandwidth": 7894674,
+      "codecs": "ec-3,hvc1.2.4.H120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/8800k/vod.m3u8",
+      "bandwidth": 14039974,
+      "average_bandwidth": 9009482,
+      "codecs": "ec-3,hvc1.2.4.L150.90",
+      "resolution": {
+        "w": 2560,
+        "h": 1440
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/450k/vod.m3u8",
+      "bandwidth": 898051,
+      "average_bandwidth": 706994,
+      "codecs": "ec-3,hvc1.2.4.L63.90",
+      "resolution": {
+        "w": 640,
+        "h": 360
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/900k/vod.m3u8",
+      "bandwidth": 1544744,
+      "average_bandwidth": 1151783,
+      "codecs": "ec-3,hvc1.2.4.L63.90",
+      "resolution": {
+        "w": 640,
+        "h": 360
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "eac3",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/1650k/vod.m3u8",
+      "bandwidth": 3380396,
+      "average_bandwidth": 2659352,
+      "codecs": "ec-3,hvc1.2.4.L90.90",
+      "resolution": {
+        "w": 960,
+        "h": 540
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/10000k/vod.m3u8",
+      "bandwidth": 16707839,
+      "average_bandwidth": 10954692,
+      "codecs": "ec-3,hvc1.2.4.L150.90",
+      "resolution": {
+        "w": 2560,
+        "h": 1440
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/13000k/vod.m3u8",
+      "bandwidth": 21551664,
+      "average_bandwidth": 13963223,
+      "codecs": "ec-3,hvc1.2.4.H150.90",
+      "resolution": {
+        "w": 3840,
+        "h": 2160
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/16500k/vod.m3u8",
+      "bandwidth": 26598940,
+      "average_bandwidth": 17398921,
+      "codecs": "ec-3,hvc1.2.4.H150.90",
+      "resolution": {
+        "w": 3840,
+        "h": 2160
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/2500k/vod.m3u8",
+      "bandwidth": 4686819,
+      "average_bandwidth": 3518042,
+      "codecs": "ec-3,hvc1.2.4.L93.90",
+      "resolution": {
+        "w": 1280,
+        "h": 720
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/3300k/vod.m3u8",
+      "bandwidth": 5941080,
+      "average_bandwidth": 4299707,
+      "codecs": "ec-3,hvc1.2.4.L93.90",
+      "resolution": {
+        "w": 1280,
+        "h": 720
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/4600k/vod.m3u8",
+      "bandwidth": 7882680,
+      "average_bandwidth": 5614284,
+      "codecs": "ec-3,hvc1.2.4.L120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/6000k/vod.m3u8",
+      "bandwidth": 10429877,
+      "average_bandwidth": 6996616,
+      "codecs": "ec-3,hvc1.2.4.L120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/7700k/vod.m3u8",
+      "bandwidth": 13053385,
+      "average_bandwidth": 8662694,
+      "codecs": "ec-3,hvc1.2.4.H120.90",
+      "resolution": {
+        "w": 1920,
+        "h": 1080
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/8800k/vod.m3u8",
+      "bandwidth": 14807994,
+      "average_bandwidth": 9777502,
+      "codecs": "ec-3,hvc1.2.4.L150.90",
+      "resolution": {
+        "w": 2560,
+        "h": 1440
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/450k/vod.m3u8",
+      "bandwidth": 1666071,
+      "average_bandwidth": 1475014,
+      "codecs": "ec-3,hvc1.2.4.L63.90",
+      "resolution": {
+        "w": 640,
+        "h": 360
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    },
+    {
+      "uri": "hdr10/unenc/900k/vod.m3u8",
+      "bandwidth": 2312764,
+      "average_bandwidth": 1919803,
+      "codecs": "ec-3,hvc1.2.4.L63.90",
+      "resolution": {
+        "w": 640,
+        "h": 360
+      },
+      "frame_rate": 23.97,
+      "video_range": "PQ",
+      "audio": "atmos",
+      "closed_captions": null
+    }
+  ],
+  "i_frame_stream_inf": [
+    {
+      "uri": "hdr10/unenc/3300k/vod-iframe.m3u8",
+      "bandwidth": 222552,
+      "codecs": "hvc1.2.4.L93.90",
+      "resolution": {
+        "w": 1280,
+        "h": 720
+      },
+      "video_range": "PQ"
+    },
+    {
+      "uri": "hdr10/unenc/900k/vod-iframe.m3u8",
+      "bandwidth": 77758,
+      "codecs": "hvc1.2.4.L63.90",
+      "resolution": {
+        "w": 640,
+        "h": 360
+      },
+      "video_range": "PQ"
+    }
+  ]
+}

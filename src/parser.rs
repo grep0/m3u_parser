@@ -221,12 +221,7 @@ fn interpret_ext_x_i_frame_stream_inf(attr: &AttributeMap) -> Option<format::IFr
 }
 
 pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, ParseError> {
-    let mut playlist = format::MultivariantPlaylist{
-        independent_segments: false,
-        media: vec![],
-        stream_inf: vec![],
-        i_frame_stream_inf: vec![]
-    };
+    let mut playlist = format::MultivariantPlaylist::new();
     let mut expect_uri = false;
     for (lineno, line) in data.split('\n').enumerate() {
         let Some(parsed) = parse_line(line) else {
@@ -513,7 +508,7 @@ hdr10/unenc/10000k/vod.m3u8
             assert!(false);
             return
         };
-        let validate = format::validate(&m3u);
+        let validate = m3u.validate();
         assert!(validate.is_err());
     }
 
