@@ -14,10 +14,16 @@ struct Args {
     /// Filter by AUDIO-GROUP
     #[arg(long)]
     audio_group: Option<String>,
+    /// Filter by AUDIO CHANNELS
+    #[arg(long)]
+    audio_channels: Option<String>,
     /// Filter EXT-X-STREAM-INF by bandwidth (maximum specified)
     #[arg(long)]
     max_bandwidth: Option<u64>,
-    /// Request sort EXT-X-STREAM-INF by bandwidth (descending)
+    /// Filter EXT-X-STREAM-INF and EXT-X-I-FRAME-STREAM-INF by resolution (exact, WxH)
+    #[arg(long)]
+    resolution: Option<String>,
+    /// Sort EXT-X-STREAM-INF by bandwidth (descending)
     #[arg(long, default_value_t=false)]
     sort_by_bandwidth: bool,
 }
@@ -41,8 +47,17 @@ fn main() {
         m3u = m3u.select_audio_group(ag).expect("Failed to select audio group");
     }
 
+    if let Some(ch) = &args.audio_channels {
+        m3u = m3u.select_audio_by_channels(ch).expect("Failed to select audio channels");
+    }
+
     if let Some(bw) = &args.max_bandwidth {
         m3u = m3u.select_max_bandwidth(*bw).expect("Failed to select by max bandwidth");
+    }
+
+    if let Some(resstr) = &args.resolution {
+        let res = parser::parse_resolution_param(resstr).expect("Failed to parse resolution param");
+        m3u = m3u.select_resolution(&res).expect("Failed to select by resolution");
     }
 
     if args.sort_by_bandwidth {

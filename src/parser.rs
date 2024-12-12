@@ -176,6 +176,11 @@ fn as_resolution(v: &AttributeValue) -> Option<format::Resolution> {
     Some(format::Resolution{w: *res.0, h: *res.1})
 }
 
+pub fn parse_resolution_param(s: &str) -> Option<format::Resolution> {
+    let av = parse_resolution(s)?;
+    as_resolution(&av)
+}
+
 fn intepret_ext_x_media(attr: &AttributeMap) -> Option<format::Media> {
     Some(format::Media{
         type_: as_media_type(attr.get("TYPE")?)?,

@@ -113,7 +113,7 @@ impl MultivariantPlaylist {
         Ok(())
     }
 
-    /* Filter by audio GROUP-IN */
+    /* Filter by audio GROUP-ID */
     pub fn select_audio_group(self: &Self, ag: &str) -> Result<Self, String> {
         let mut ret = Self::new();
         ret.independent_segments = self.independent_segments;
@@ -141,7 +141,37 @@ impl MultivariantPlaylist {
         Ok(ret)
     }
 
-    /* filter by bandwidth (maximum specified) */
+    /* Filter by audio CHANNELS */
+    pub fn select_audio_by_channels(self: &Self, ch: &str) -> Result<Self, String> {
+        let mut ret = Self::new();
+        ret.independent_segments = self.independent_segments;
+        let mut found = false;
+        let mut agroups = HashSet::<&str>::new();
+        for m in &self.media {
+            if m.type_ != MediaType::Audio || m.channels.as_ref().is_some_and(|v| v==ch) {
+                ret.media.push(m.clone());
+                agroups.insert(&m.group_id);
+                found = true;
+            }
+        }
+        if !found {
+            return Err(format!("Audio media with channels {} not found", ch).to_string());
+        }
+        found = false;
+        for si in &self.stream_inf {
+            if si.audio.is_none() || agroups.contains(&si.audio.as_ref().unwrap().as_str()) {
+                ret.stream_inf.push(si.clone());
+                found = true;
+            }
+        }
+        if !found {
+            return Err(format!("No STREAM-ID associated with audio having CHANNELS {}", ch).to_string());
+        }
+        ret.i_frame_stream_inf = self.i_frame_stream_inf.clone();
+        Ok(ret)
+    }
+
+    /* Filter by bandwidth (maximum specified) */
     pub fn select_max_bandwidth(self: &Self, bw: u64) -> Result<Self, String> {
         let mut ret = Self::new();
         ret.independent_segments = self.independent_segments;
@@ -160,7 +190,30 @@ impl MultivariantPlaylist {
         Ok(ret)
     }
 
-    // Sort EXT-I-STREAM-INF by bandwidth, descending
+    /* Filter EXT-X-STREAM-INF and EXT-X-I-FRAME-STREAM-INF by resolution (exact) */
+    pub fn select_resolution(self: &Self, res: &Resolution) -> Result<Self, String> {
+        let mut ret = Self::new();
+        ret.independent_segments = self.independent_segments;
+        ret.media = self.media.clone();
+        let mut found = false;
+        for si in &self.stream_inf {
+            if si.resolution.as_ref().is_some_and(|v| *v==*res) {
+                ret.stream_inf.push(si.clone());
+                found = true;
+            }
+        }
+        if !found {
+            return Err(format!("No streams with resolution {:?}", res).to_string());
+        }
+        for ifsi in &self.i_frame_stream_inf {
+            if ifsi.resolution.as_ref().is_some_and(|v| *v==*res) {
+                ret.i_frame_stream_inf.push(ifsi.clone());
+            }
+        }
+        Ok(ret)
+    }
+
+    /* Sort EXT-X-STREAM-INF by bandwidth, descending */
     pub fn sort_by_bandwidth(self: &mut Self) {
         self.stream_inf.sort_by(|a, b| b.bandwidth.cmp(&a.bandwidth));
     }
@@ -170,7 +223,7 @@ impl MultivariantPlaylist {
 
 #[cfg(test)]
 mod tests {
-    use super::MultivariantPlaylist;
+    use super::{MultivariantPlaylist, Resolution};
 
     fn playlist() -> MultivariantPlaylist {
         let json = include_str!("../data/playlist.json");
@@ -182,6 +235,14 @@ mod tests {
         let sel = playlist().select_audio_group("aac-128k").unwrap();
         assert_eq!(sel.media.len(), 1);
         assert_eq!(sel.stream_inf.len(), 10);
+        assert_eq!(sel.i_frame_stream_inf.len(), playlist().i_frame_stream_inf.len());
+    }
+
+    #[test]
+    fn test_select_audio_channels() {
+        let sel = playlist().select_audio_by_channels("2").unwrap();
+        assert_eq!(sel.media.len(), 2); // aac-128k and aac-64k
+        assert_eq!(sel.stream_inf.len(), 10+2);
         assert_eq!(sel.i_frame_stream_inf.len(), playlist().i_frame_stream_inf.len());
     }
 
@@ -202,6 +263,14 @@ mod tests {
         let sel = playlist().select_audio_group("atmos").unwrap();
         let sel = sel.select_max_bandwidth(10000000).unwrap();
         assert_eq!(sel.stream_inf.len(), 6);
+    }
+
+    #[test]
+    fn test_select_resolution() {
+        let res = Resolution{ w: 1280, h: 720 };
+        let sel = playlist().select_resolution(&res).unwrap();
+        assert_eq!(sel.stream_inf.len(), 6);
+        assert_eq!(sel.i_frame_stream_inf.len(), 1);
     }
 
     #[test]
