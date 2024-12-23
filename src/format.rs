@@ -252,17 +252,14 @@ mod tests {
         assert!(sel.is_err());
     }
 
-    fn is_sorted_rev<T>(data: &[T]) -> bool
-    where T: Ord,
-    {
-        data.windows(2).all(|w| w[0] >= w[1])
-    }
-
     #[test]
     fn test_select_max_bandwidth() {
         let sel = playlist().select_audio_group("atmos").unwrap();
         let sel = sel.select_max_bandwidth(10000000).unwrap();
         assert_eq!(sel.stream_inf.len(), 6);
+        for si in &sel.stream_inf {
+            assert!(si.bandwidth <= 10000000);
+        }
     }
 
     #[test]
@@ -270,7 +267,17 @@ mod tests {
         let res = Resolution{ w: 1280, h: 720 };
         let sel = playlist().select_resolution(&res).unwrap();
         assert_eq!(sel.stream_inf.len(), 6);
+        for si in &sel.stream_inf {
+            assert_eq!(si.resolution, Some(res.clone()));
+        }
         assert_eq!(sel.i_frame_stream_inf.len(), 1);
+        assert_eq!(sel.i_frame_stream_inf[0].resolution, Some(res));
+    }
+
+    fn is_sorted_rev<T>(data: &[T]) -> bool
+    where T: Ord,
+    {
+        data.windows(2).all(|w| w[0] >= w[1])
     }
 
     #[test]

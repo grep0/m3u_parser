@@ -265,46 +265,19 @@ mod tests {
 
     #[test]
     fn test_parse_line() {
-        if let Some(ParsedLine::Empty) = parse_line("") {
-            assert!(true);
-        } else {
-            assert!(false);
-        }
+        let Some(ParsedLine::Empty) = parse_line("") else { panic!() };
 
-        if let Some(ParsedLine::ExtM3U) = parse_line("#EXTM3U") {
-            assert!(true);
-        } else {
-            assert!(false);
-        }
+        let Some(ParsedLine::ExtM3U) = parse_line("#EXTM3U") else { panic!() };
 
-        if let Some(ParsedLine::Tag(tag)) = parse_line("#EXT-X-INDEPENDENT-SEGMENTS") {
-            assert_eq!(tag, "EXT-X-INDEPENDENT-SEGMENTS");
-        } else {
-            assert!(false);
-        }
+        let Some(ParsedLine::Tag("EXT-X-INDEPENDENT-SEGMENTS")) = parse_line("#EXT-X-INDEPENDENT-SEGMENTS") else { panic!() };
 
         let lmedia = r#"#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="aac-128k",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2",URI="audio/unenc/aac_128k/vod.m3u8""#;
-        if let Some(ParsedLine::TagWithAttributes(tag, attrs)) = parse_line(lmedia) {
-            assert_eq!(tag, "EXT-X-MEDIA");
-            if let AttributeValue::EnumeratedString(s) = attrs["TYPE"] {
-                assert_eq!(s, "AUDIO");
-            } else {
-                assert!(false);
-            }
-            if let AttributeValue::QuotedString(s) = attrs["URI"] {
-                assert_eq!(s, "audio/unenc/aac_128k/vod.m3u8");
-            } else {
-                assert!(false);
-            }
-        } else {
-            assert!(false);
-        }
+        let Some(ParsedLine::TagWithAttributes("EXT-X-MEDIA", attrs)) = parse_line(lmedia)
+        else { panic!() };
+        let AttributeValue::EnumeratedString("AUDIO") = attrs["TYPE"] else { panic!() };
+        let AttributeValue::QuotedString("audio/unenc/aac_128k/vod.m3u8") = attrs["URI"] else { panic!() };
 
-        if let Some(ParsedLine::Uri(u)) = parse_line("hdr10/unenc/1650k/vod.m3u8") {
-            assert_eq!(u, "hdr10/unenc/1650k/vod.m3u8");
-        } else {
-            assert!(false);
-        }
+        let Some(ParsedLine::Uri("hdr10/unenc/1650k/vod.m3u8")) = parse_line("hdr10/unenc/1650k/vod.m3u8") else { panic!() };
     }
 
     #[test]
@@ -312,18 +285,15 @@ mod tests {
         let l = r#"#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="aac-128k",NAME="English",LANGUAGE="en",DEFAULT=YES,AUTOSELECT=YES,CHANNELS="2",URI="audio/unenc/aac_128k/vod.m3u8""#;
         let parsed = parse_line(l).unwrap();
         let attr = parsed.extract_as_tag_with_attributes().1;
-        if let Some(m) = intepret_ext_x_media(attr) {
-            assert_eq!(m.type_, format::MediaType::Audio);
-            assert_eq!(m.group_id, "aac-128k");
-            assert_eq!(m.name, "English");
-            assert_eq!(m.language.unwrap(), "en");
-            assert!(m.default);
-            assert!(m.autoselect);
-            assert_eq!(m.channels.unwrap(), "2");
-            assert_eq!(m.uri, "audio/unenc/aac_128k/vod.m3u8");
-        } else {
-            assert!(false);
-        }
+        let m = intepret_ext_x_media(attr).unwrap();
+        assert_eq!(m.type_, format::MediaType::Audio);
+        assert_eq!(m.group_id, "aac-128k");
+        assert_eq!(m.name, "English");
+        assert_eq!(m.language.unwrap(), "en");
+        assert!(m.default);
+        assert!(m.autoselect);
+        assert_eq!(m.channels.unwrap(), "2");
+        assert_eq!(m.uri, "audio/unenc/aac_128k/vod.m3u8");
     }
 
     #[test]
@@ -331,19 +301,16 @@ mod tests {
         let l = r#"#EXT-X-STREAM-INF:BANDWIDTH=2483789,AVERAGE-BANDWIDTH=1762745,CODECS="mp4a.40.2,hvc1.2.4.L90.90",RESOLUTION=960x540,FRAME-RATE=23.97,VIDEO-RANGE=PQ,AUDIO="aac-128k",CLOSED-CAPTIONS=NONE"#;
         let parsed = parse_line(l).unwrap();
         let attr = parsed.extract_as_tag_with_attributes().1;
-        if let Some(m) = interpret_ext_x_stream_inf(attr) {
-            assert_eq!(m.uri, "");
-            assert_eq!(m.bandwidth, 2483789);
-            assert_eq!(m.average_bandwidth.unwrap(), 1762745);
-            assert_eq!(m.codecs.unwrap(), "mp4a.40.2,hvc1.2.4.L90.90");
-            assert_eq!(m.resolution.unwrap(), format::Resolution{w: 960, h: 540});
-            assert_eq!(m.frame_rate.unwrap(), 23.97);
-            assert_eq!(m.video_range.unwrap(), format::VideoRange::PQ);
-            assert_eq!(m.audio.unwrap(), "aac-128k");
-            assert_eq!(m.closed_captions, None);
-        } else {
-            assert!(false);
-        }
+        let m = interpret_ext_x_stream_inf(attr).unwrap();
+        assert_eq!(m.uri, "");
+        assert_eq!(m.bandwidth, 2483789);
+        assert_eq!(m.average_bandwidth.unwrap(), 1762745);
+        assert_eq!(m.codecs.unwrap(), "mp4a.40.2,hvc1.2.4.L90.90");
+        assert_eq!(m.resolution.unwrap(), format::Resolution{w: 960, h: 540});
+        assert_eq!(m.frame_rate.unwrap(), 23.97);
+        assert_eq!(m.video_range.unwrap(), format::VideoRange::PQ);
+        assert_eq!(m.audio.unwrap(), "aac-128k");
+        assert_eq!(m.closed_captions, None);
     }
 
     #[test]
@@ -351,15 +318,12 @@ mod tests {
         let l = r#"#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=222552,CODECS="hvc1.2.4.L93.90",RESOLUTION=1280x720,VIDEO-RANGE=PQ,URI="hdr10/unenc/3300k/vod-iframe.m3u8""#;
         let parsed = parse_line(l).unwrap();
         let attr = parsed.extract_as_tag_with_attributes().1;
-        if let Some(m) = interpret_ext_x_i_frame_stream_inf(attr) {
-            assert_eq!(m.uri, "hdr10/unenc/3300k/vod-iframe.m3u8");
-            assert_eq!(m.bandwidth, 222552);
-            assert_eq!(m.codecs.unwrap(), "hvc1.2.4.L93.90");
-            assert_eq!(m.resolution, Some(format::Resolution{w: 1280, h: 720}));
-            assert_eq!(m.video_range.unwrap(), format::VideoRange::PQ);
-        } else {
-            assert!(false)
-        }
+        let m = interpret_ext_x_i_frame_stream_inf(attr).unwrap();
+        assert_eq!(m.uri, "hdr10/unenc/3300k/vod-iframe.m3u8");
+        assert_eq!(m.bandwidth, 222552);
+        assert_eq!(m.codecs.unwrap(), "hvc1.2.4.L93.90");
+        assert_eq!(m.resolution, Some(format::Resolution{w: 1280, h: 720}));
+        assert_eq!(m.video_range.unwrap(), format::VideoRange::PQ);
     }
 
     #[test]
@@ -414,10 +378,7 @@ hdr10/unenc/10000k/vod.m3u8
     #[test]
     fn test_validation_error() {
         let data = include_str!("../data/validation_error.m3u8");
-        let Ok(m3u) = parse_playlist(&data) else {
-            assert!(false);
-            return
-        };
+        let Ok(m3u) = parse_playlist(&data) else { panic!(); };
         let validate = m3u.validate();
         assert!(validate.is_err());
     }
