@@ -1,0 +1,14 @@
+decimal_integer     = { ASCII_DIGIT+ }
+float               = { ("-")? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+quoted_string       = { "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+enumerated_string   = { ASCII_ALPHA ~ (ASCII_ALPHA | ASCII_DIGIT | "-")* }
+decimal_resolution  = { decimal_integer ~ "x" ~ decimal_integer }
+uri                 = { (ASCII_ALPHA | ASCII_DIGIT | "_") ~ ANY+ }
+attribute_value     = { decimal_resolution | float | decimal_integer | float | quoted_string | enumerated_string }
+attribute           = { enumerated_string ~ "=" ~ attribute_value }
+attribute_list      = _{ attribute ~ ("," ~ attribute)* }
+tag_name            = { "EXT-X-" ~ enumerated_string }
+tag                 = { "#" ~ tag_name }
+tag_with_attributes = { "#" ~ tag_name ~ ":" ~ attribute_list }
+extm3u              = { "#EXTM3U" }
+line                = _{ SOI ~ (extm3u | tag_with_attributes | tag | uri) ~ EOI }

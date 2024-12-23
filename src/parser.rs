@@ -1,9 +1,11 @@
 use core::fmt;
 use std::collections::HashMap;
 
-use regex_static::once_cell::sync::Lazy;
-use regex::{Regex, Captures};
 use enum_extract_macro::EnumExtract;
+
+use pest::Parser;
+use pest::iterators::Pair;
+use pest_derive::Parser;
 
 #[derive(Debug, EnumExtract)]
 enum AttributeValue<'a> {
@@ -25,100 +27,66 @@ enum ParsedLine<'a> {
     Empty,
 }
 
-// Consume regex in the beginning of the stream. If success, return caputres and tail of the string.
-// For optimization, the regexes should start with '^', but it is not necessary
-fn consume<'a>(s: &'a str, re: &Regex) -> Option<(Captures<'a>, &'a str)> {
-    if let Some(m) = re.captures_at(s, 0) {
-        let g0 = &m.get(0).unwrap();
-        if g0.start() == 0 { // verify once again that capture starts as 0
-            let tail = &s[g0.len()..];
-            return Some((m, tail))
-        }
-    }
-    None
+#[derive(Parser)]
+#[grammar = "m3u8.pest"]
+struct M3u8Parser;
+
+fn parse_decimal_resolution<'a>(pair: Pair<'a, Rule>) -> Option<(u64, u64)> {
+    let mut inner = pair.into_inner();
+    let w = inner.next().unwrap().as_str().parse().ok()?;
+    let h = inner.next().unwrap().as_str().parse().ok()?;
+    Some((w, h))
 }
 
-static RE_RESOLUTION: Lazy<Regex> = regex_static::lazy_regex!(r#"^([0-9]+)x([0-9]+)$"#);
-
-fn parse_resolution(res: &str) -> Option<AttributeValue> {
-    if let Some(m) = RE_RESOLUTION.captures(res) {
-        Some(AttributeValue::DecimalResolution(
-            m.get(1)?.as_str().parse().ok()?,
-            m.get(2)?.as_str().parse().ok()?))
-    } else {
-        None
+fn parse_attribute_value<'a>(pair: Pair<'a, Rule>) -> Option<AttributeValue<'a>> {
+    let mut inner = pair.into_inner();
+    let tail = inner.next().unwrap();
+    match tail.as_rule() {
+        Rule::decimal_integer => tail.as_str().parse().ok().map(AttributeValue::Integer),
+        Rule::float => tail.as_str().parse().ok().map(AttributeValue::Float),
+        Rule::quoted_string => {
+            let tail = tail.as_str();
+            let unquoted = &tail[1..tail.len()-1];
+            Some(AttributeValue::QuotedString(unquoted))
+        },
+        Rule::enumerated_string => Some(AttributeValue::EnumeratedString(tail.as_str())),
+        Rule::decimal_resolution => {
+            parse_decimal_resolution(tail)
+                .map(|(w, h)| AttributeValue::DecimalResolution(w, h))
+        },
+        _ => None
     }
 }
-
-static RE_ATTRIBUTE_VALUE: Lazy<Regex> = 
-    regex_static::lazy_regex!(r#"^([0-9]+\.[0-9]+)|^"([^"]+)"|^([[:alpha:]-]+)|^([0-9]+x[0-9]+)|^([0-9]+)"#);
-
-// TODO: more verbose parse error
-fn parse_attribute_value<'a>(value: &'a str) -> Option<(&'a str, AttributeValue<'a>)> {
-    if let Some((m, tail)) = consume(value, &RE_ATTRIBUTE_VALUE) {
-        let av =
-            if let Some(mf) = m.get(1) {
-                AttributeValue::Float(mf.as_str().parse::<f64>().ok()?)
-            } else if let Some(mqs) = m.get(2) {
-                AttributeValue::QuotedString(mqs.as_str())
-            } else if let Some(mes) = m.get(3) {
-                AttributeValue::EnumeratedString(mes.as_str())
-            } else if let Some(mres) = m.get(4) {
-                parse_resolution(mres.as_str()).unwrap()
-            } else if let Some(mdec) = m.get(5) {
-                AttributeValue::Integer(mdec.as_str().parse::<u64>().ok()?)
-            } else {
-                panic!("unexpected parser state")
-            };
-        Some((tail, av))
-    } else {
-        None
-    }
-}
-
-static RE_ATTRIBUTE_NAME : Lazy<Regex> = regex_static::lazy_regex!(r#"^([[:alpha:]-]+)="#);
-
-fn parse_attributes<'a>(value: &'a str) -> Option<AttributeMap<'a>> {
-    let mut tail = value;
-    let mut result = AttributeMap::new();
-    while !tail.is_empty() {
-        let Some((mkey, t)) = consume(tail, &RE_ATTRIBUTE_NAME)
-        else { return None };
-        let key = mkey.get(1).unwrap().as_str();
-        tail = t;
-        let Some((t, av)) = parse_attribute_value(tail)
-        else { return None };
-        result.insert(key, av);
-        if t.is_empty() { break }
-        if !t.starts_with(",") { return None } // consume trailing comma
-        tail = &t[1..];
-    }
-    Some(result)
-}
-
-static RE_TAG_NAME: Lazy<Regex> = regex_static::lazy_regex!(r#"^#(EXT-X-[[:alpha:]-]+)($|:)"#);
-static RE_URI: Lazy<Regex> = regex_static::lazy_regex!(r#"^([[:alnum:]/.:])+$"#);
 
 fn parse_line<'a>(line: &'a str) -> Option<ParsedLine<'a>> {
     if line.is_empty() {
         return Some(ParsedLine::Empty);
     }
-    if line == "#EXTM3U" {
-        return Some(ParsedLine::ExtM3U);
-    }
-    if let Some((mtag, tail)) = consume(line, &RE_TAG_NAME) {
-        let tag = mtag.get(1).unwrap().as_str();
-        if tail.is_empty() {
-            return Some(ParsedLine::Tag(tag));
+    let parsed = M3u8Parser::parse(Rule::line, line).ok()?;
+    for pair in parsed {
+        match pair.as_rule() {
+            Rule::extm3u => return Some(ParsedLine::ExtM3U),
+            Rule::tag => return Some(ParsedLine::Tag(&pair.as_str()[1..])),
+            Rule::tag_with_attributes => {
+                let mut attr = HashMap::new();
+                let mut name = "";
+                for p in pair.clone().into_inner() {
+                    match p.as_rule() {
+                        Rule::tag_name => name = p.as_str(),
+                        Rule::attribute => {
+                            let mut av = p.into_inner();
+                            let key = av.next().unwrap().as_str();
+                            let value = parse_attribute_value(av.next().unwrap())?;
+                            attr.insert(key, value);
+                        },
+                        _ => unreachable!()
+                    }
+                }
+                return Some(ParsedLine::TagWithAttributes(name, attr));
+            },
+            Rule::uri => return Some(ParsedLine::Uri(pair.as_str())),
+            _ => unreachable!()
         }
-        if let Some (attr) = parse_attributes(tail) {
-            return Some(ParsedLine::TagWithAttributes(tag, attr))
-        } else {
-            return None
-        }
-    }
-    if let Some(_) = RE_URI.captures(line) {
-        return Some(ParsedLine::Uri(line))
     }
     None
 }
@@ -177,8 +145,10 @@ fn as_resolution(v: &AttributeValue) -> Option<format::Resolution> {
 }
 
 pub fn parse_resolution_param(s: &str) -> Option<format::Resolution> {
-    let av = parse_resolution(s)?;
-    as_resolution(&av)
+    let mut parsed = M3u8Parser::parse(Rule::decimal_resolution, s).ok()?;
+    let w = parsed.next().unwrap().as_str().parse().ok()?;
+    let h = parsed.next().unwrap().as_str().parse().ok()?;
+    Some(format::Resolution{w, h})
 }
 
 fn intepret_ext_x_media(attr: &AttributeMap) -> Option<format::Media> {
@@ -292,71 +262,6 @@ pub fn parse_playlist(data: &str) -> Result<format::MultivariantPlaylist, ParseE
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_parse_attribute_value() {
-        if let Some((tail,AttributeValue::Float(d))) = parse_attribute_value("12.5,tail") {
-            assert_eq!(tail, ",tail");
-            assert_eq!(d, 12.5);
-        } else {
-            assert!(false)
-        }
-
-        if let Some((_,AttributeValue::DecimalResolution(w, h))) = parse_attribute_value("2560x1440") {
-            assert_eq!(w, 2560);
-            assert_eq!(h, 1440);
-        } else {
-            assert!(false)
-        }
-
-        if let Some((_,AttributeValue::Integer(v))) = parse_attribute_value("10058085") {
-            assert_eq!(v, 10058085);
-        } else {
-            assert!(false)
-        }
-
-        if let Some((_,AttributeValue::QuotedString(v))) = parse_attribute_value(r#""mp4a.40.2,hvc1.2.4.L150.90""#) {
-            assert_eq!(v, "mp4a.40.2,hvc1.2.4.L150.90");
-        } else {
-            assert!(false)
-        }
-
-
-        if let Some((tail,AttributeValue::EnumeratedString(v))) = parse_attribute_value("PQ,SOMETHING") {
-            assert_eq!(tail, ",SOMETHING");
-            assert_eq!(v, "PQ");
-        } else {
-            assert!(false)
-        }
-    }
-
-    #[test]
-    fn test_parse_attribute_str() {
-        let astr = r#"BANDWIDTH=15811232,AVERAGE-BANDWIDTH=10058085,CODECS="mp4a.40.2,hvc1.2.4.L150.90",RESOLUTION=2560x1440,FRAME-RATE=23.97,VIDEO-RANGE=PQ,AUDIO="aac-128k",CLOSED-CAPTIONS=NONE"#;
-        let parsed = parse_attributes(astr);
-        assert!(parsed.is_some());
-        let parsed = parsed.unwrap();
-        if let AttributeValue::Integer(bw) = &parsed["BANDWIDTH"] {
-            assert_eq!(*bw, 15811232);
-        } else {
-            assert!(false)
-        }
-        if let AttributeValue::Integer(bw) = &parsed["AVERAGE-BANDWIDTH"] {
-            assert_eq!(*bw, 10058085);
-        } else {
-            assert!(false)
-        }
-        if let AttributeValue::QuotedString(s) = &parsed["CODECS"] {
-            assert_eq!(*s, "mp4a.40.2,hvc1.2.4.L150.90");
-        } else {
-            assert!(false)
-        }
-        if let AttributeValue::EnumeratedString(s) = &parsed["CLOSED-CAPTIONS"] {
-            assert_eq!(*s, "NONE");
-        } else {
-            assert!(false)
-        }
-    }
 
     #[test]
     fn test_parse_line() {
